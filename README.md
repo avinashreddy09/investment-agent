@@ -355,9 +355,5 @@ investment-agent/
 
 **Avinash Reddy** — CS Student, Lovely Professional University  
 GitHub: [@avinashreddy09](https://github.com/avinashreddy09)  
-Assignment: InsideIIM × Altuni AI Labs — AI Product Engineer Intern  
-Deadline: 29 June 2026
 
----
 
-> ⚠️ **Disclaimer:** This tool is for educational purposes only. Not financial advice. Always do your own research before making investment decisions.
