@@ -1,8 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    serverComponentsExternalPackages: ['langchain', '@langchain/langgraph'],
-  },
+  serverExternalPackages: ['@langchain/langgraph', '@langchain/core', '@langchain/groq'],
 }
-
 module.exports = nextConfig
