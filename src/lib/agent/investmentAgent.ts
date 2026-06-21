@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ChatGroq } from "@langchain/groq";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
@@ -60,10 +61,13 @@ export async function runInvestmentResearch(company: string, onStep?: (step: Age
   );
 
   for await (const chunk of stream) {
-    const agentMessages = Array.isArray(chunk.agent?.messages) ? chunk.agent.messages : [];
+    const agentMessages: any[] = Array.isArray((chunk as any).agent?.messages)
+      ? (chunk as any).agent.messages
+      : [];
+
     for (const msg of agentMessages) {
-      if (Array.isArray((msg as any).tool_calls) && (msg as any).tool_calls.length > 0) {
-        for (const tc of (msg as any).tool_calls) {
+      if (Array.isArray(msg.tool_calls) && msg.tool_calls.length > 0) {
+        for (const tc of msg.tool_calls) {
           const step: AgentStep = { type: "tool_call", tool: tc.name, input: JSON.stringify(tc.args) };
           steps.push(step);
           onStep?.(step);
@@ -75,10 +79,13 @@ export async function runInvestmentResearch(company: string, onStep?: (step: Age
       }
     }
 
-    const toolMessages = Array.isArray(chunk.tools?.messages) ? chunk.tools.messages : [];
+    const toolMessages: any[] = Array.isArray((chunk as any).tools?.messages)
+      ? (chunk as any).tools.messages
+      : [];
+
     for (const msg of toolMessages) {
       if (typeof msg.content === "string") {
-        const step: AgentStep = { type: "tool_result", tool: (msg as any).name, output: msg.content.slice(0, 500) };
+        const step: AgentStep = { type: "tool_result", tool: msg.name, output: msg.content.slice(0, 500) };
         steps.push(step);
         onStep?.(step);
       }
