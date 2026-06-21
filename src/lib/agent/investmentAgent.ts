@@ -6,9 +6,7 @@ import { financialDataTool } from "../tools/financialData";
 import { sentimentAnalysisTool } from "../tools/sentimentAnalysis";
 
 const SYSTEM_PROMPT = `You are an elite AI Investment Research Analyst. Research companies and deliver INVEST / PASS / HOLD AND MONITOR verdicts.
-
 Steps: 1) Search web for recent news 2) Get financial data if public company 3) Analyze sentiment 4) Write report.
-
 Always end your report with exactly:
 **DECISION: INVEST** or **DECISION: PASS** or **DECISION: HOLD AND MONITOR**
 **Confidence Level: HIGH** or **Confidence Level: MEDIUM** or **Confidence Level: LOW**
@@ -62,28 +60,27 @@ export async function runInvestmentResearch(company: string, onStep?: (step: Age
   );
 
   for await (const chunk of stream) {
-    if (chunk.agent?.messages) {
-      for (const msg of chunk.agent.messages) {
-        if (msg.tool_calls?.length > 0) {
-          for (const tc of msg.tool_calls) {
-            const step: AgentStep = { type: "tool_call", tool: tc.name, input: JSON.stringify(tc.args) };
-            steps.push(step);
-            onStep?.(step);
-          }
-        } else if (typeof msg.content === "string" && msg.content.trim()) {
-          const step: AgentStep = { type: "thinking", content: msg.content };
+    const agentMessages = Array.isArray(chunk.agent?.messages) ? chunk.agent.messages : [];
+    for (const msg of agentMessages) {
+      if (Array.isArray((msg as any).tool_calls) && (msg as any).tool_calls.length > 0) {
+        for (const tc of (msg as any).tool_calls) {
+          const step: AgentStep = { type: "tool_call", tool: tc.name, input: JSON.stringify(tc.args) };
           steps.push(step);
           onStep?.(step);
         }
+      } else if (typeof msg.content === "string" && msg.content.trim()) {
+        const step: AgentStep = { type: "thinking", content: msg.content };
+        steps.push(step);
+        onStep?.(step);
       }
     }
-    if (chunk.tools?.messages) {
-      for (const msg of chunk.tools.messages) {
-        if (typeof msg.content === "string") {
-          const step: AgentStep = { type: "tool_result", tool: msg.name, output: msg.content.slice(0, 500) };
-          steps.push(step);
-          onStep?.(step);
-        }
+
+    const toolMessages = Array.isArray(chunk.tools?.messages) ? chunk.tools.messages : [];
+    for (const msg of toolMessages) {
+      if (typeof msg.content === "string") {
+        const step: AgentStep = { type: "tool_result", tool: (msg as any).name, output: msg.content.slice(0, 500) };
+        steps.push(step);
+        onStep?.(step);
       }
     }
   }
