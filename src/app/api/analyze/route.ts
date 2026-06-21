@@ -3,6 +3,7 @@
 
 import { NextRequest } from "next/server";
 import { runInvestmentResearch, AgentStep } from "@/lib/agent/investmentAgent";
+export const dynamic = 'force-dynamic';
 
 export const runtime = "nodejs";
 export const maxDuration = 120; // 2 minutes max for deep research
